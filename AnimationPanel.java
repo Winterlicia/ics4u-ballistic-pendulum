@@ -7,29 +7,28 @@ import javax.swing.JPanel;
 
 class AnimationPanel extends JPanel {
 //Properties
+    //General Properties:
     final double GRAVITY = 9.81; //Acceleration due to g
+    int RESETTING_FACTOR = 0; //Used to reset the dotted line at the end of a launch
 
     //Pendulum:
     int pendulumMeter = 5; //Default pendulum rope measurement = 5m. Let every 1m = 10pixels
     
     //Bob:
     final int originX = 600, originY = 0; //x,y coordinates at the top of the pendulum rope
-    int bobDimension = 64;
-    int pendulumBobX = 600, pendulumBobY = 375;
+    final int bobDimension = 32;
+    double pendulumBobX = 600, pendulumBobY = 375;
     double pendulumMass = 1.0;
 
     //Bullet:
-    int bulletX = 500, bulletY = 20;
+    double bulletX = 500.0; 
+    int bulletY = originY + bobDimension/2;
     double bulletMass = 0.1;
-    int bulletVi = 0; //Default bullet speed = 0
+    double bulletVi = 0.0; //Default bullet speed = 0
 
     //Angle:
     double currentTheta = 0;
     double goalTheta = 0;
-
-    //Deflections:
-
-    
 
 //Methods    
     //paintComponent shows the way the panel is drawn, with animations:
@@ -43,23 +42,27 @@ class AnimationPanel extends JPanel {
 
         // (1) Animate bullet being shot, change bulletX, bulletY variables overtime:
         g.setColor(Color.BLUE);
-        g.fillRect(bulletX, 10*pendulumMeter + originY + bobDimension/2, 20, 10); 
+        g.fillRect((int)(10*pendulumMeter * Math.sin(currentTheta) + bulletX), (int)(10*pendulumMeter * Math.cos(currentTheta) + bulletY), 20, 10); 
 
         // (2) Animate ball swing, following the exponential equation 1.3^(x-30) and using collision velocity
         g.setColor(Color.GRAY);
         //Calculate change in bob position, using Bx = Lsina, By = Lcosa
         this.goalTheta = calculateAngle();
-        System.out.println(this.goalTheta);
         
-        pendulumBobX = (int) (10*pendulumMeter * Math.sin(currentTheta) + originX);
-        pendulumBobY = (int) (10*pendulumMeter * Math.cos(currentTheta) + originY);
+        pendulumBobX = 10*pendulumMeter * Math.sin(currentTheta) + originX;
+        pendulumBobY = 10*pendulumMeter * Math.cos(currentTheta) + originY;
 
         Graphics2D g2d = (Graphics2D) g;
         g2d.setStroke(new BasicStroke(3.0f));
-        g2d.drawLine(originX + bobDimension/2, originY, pendulumBobX + bobDimension/2, pendulumBobY); //Account for bob length/width
+        g2d.drawLine(originX + bobDimension/2, originY, (int)(pendulumBobX + bobDimension/2), (int) pendulumBobY); //Account for bob length/width
         
         g.setColor(Color.BLACK);
-        g.fillOval(pendulumBobX, pendulumBobY, bobDimension, bobDimension);
+        g.fillOval((int) pendulumBobX, (int) pendulumBobY, bobDimension, bobDimension);
+
+        //Once the launch has finished, draw the final/result position of the bob:
+        if (this.currentTheta == this.goalTheta && BallisticPendulum.pendulumLaunchFinished) {
+            finalPosition(g2d);
+        }
         
     }
 
@@ -68,8 +71,20 @@ class AnimationPanel extends JPanel {
         //Returns angle in radians
     }
 
-    private void originalSetup() {
+    private void finalPosition(Graphics2D g2d) {
+        g2d.setColor(Color.RED);
+        // Set dashed/dotted stroke
+        float[] dashPattern = {5, 5}; // 5 pixels on, 5 pixels off
+        g2d.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, dashPattern, 0.0f));
 
+        //Calculate an extended pendulum length:
+        final int EXTENSION_LENGTH = 150;
+        int extendedX = (int) (EXTENSION_LENGTH * Math.sin(currentTheta) + pendulumBobX);
+        int extendedY = (int) (EXTENSION_LENGTH * Math.cos(currentTheta) + pendulumBobY);
+        g2d.drawLine((originX + bobDimension/2) * RESETTING_FACTOR, originY * RESETTING_FACTOR, (originX + bobDimension/2) * RESETTING_FACTOR, (originY + 375) * RESETTING_FACTOR); //Original y-axis line
+        g2d.drawLine((originX + bobDimension/2) * RESETTING_FACTOR, originY * RESETTING_FACTOR, (extendedX + bobDimension/2) * RESETTING_FACTOR, extendedY * RESETTING_FACTOR); //Final pendulum line position
+
+        g2d.setStroke(new BasicStroke(3.0f)); //Revert back to normal settings
     }
 
     //Constructor 
