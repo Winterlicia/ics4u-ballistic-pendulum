@@ -7,6 +7,7 @@ import javax.swing.JSlider;
 import javax.swing.JMenu;
 import javax.swing.JTextField;
 import javax.swing.Timer;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -91,8 +92,19 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
                     startLaunch = false;
                     bulletLaunchFinished = false;
                     pendulumLaunchFinished = true;
-                    angleResultLabel.setFont(new Font("Arial", Font.BOLD, 18));
-                    angleResultLabel.setText("   = "+Math.round(Math.toDegrees(panel.goalTheta))+"°");
+                    angleResultLabel.setFont(new Font("Arial", Font.PLAIN, 18));
+                    angleResultLabel.setText("    = "+Math.round(Math.toDegrees(panel.goalTheta))+"°");
+
+                    //Force the user to reset the button at the end of each simulation if they want to go again
+                    launchButton.setFont(new Font("Arial", Font.BOLD, 11));
+                    launchButton.setText("Please reset to start again");
+                    launchButton.setFont((Font) UIManager.getLookAndFeelDefaults().get("defaultFont"));
+                    //Prevent user from touching the JComponents until they reset the simulation:
+                    lengthSlider.setEnabled(false);
+                    ViSlider.setEnabled(false);
+                    massBulletInput.setEditable(false);
+                    massBobInput.setEditable(false);
+                    launchButton.setEnabled(false);
                 }
             }
             panel.repaint();
@@ -119,9 +131,10 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
                 massBobInput.setText("Please input a double");
                 e.printStackTrace();
             }
-        } else if (evt.getSource() == launchButton) {
+        }else if (evt.getSource() == launchButton) {
             launchButton.setText("Launching...");
             startLaunch = true;
+
         } else if (evt.getSource() == resetButton) {
             resetSimulation();
         }
@@ -144,12 +157,23 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
     //Function to reset the entire simulation:
     private void resetSimulation() {
         //Reset JComponents and AnimationPanel Properties:
+        lengthSlider.setEnabled(true);
+        ViSlider.setEnabled(true);
+        massBulletInput.setEditable(true);
+        massBobInput.setEditable(true);
+        launchButton.setEnabled(true);
+
         lengthSlider.setValue(5);
         ViSlider.setValue(0);
         massBulletInput.setText("Enter a double value for bullet mass. Default = 0.1kg");
         massBobInput.setText("Enter a double value for bob mass. Default = 1.0kg");
         angleResultLabel.setText("");
         launchButton.setText("Launch");
+
+        startLaunch = false;
+        bulletLaunchFinished = false;
+        pendulumLaunchFinished = false;
+
         panel.pendulumMeter = 5;
         panel.pendulumBobX = 600;
         panel.pendulumBobY = 375;
@@ -202,7 +226,7 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
         ViSlider.setMinorTickSpacing(10); //Set slider spacing 
         ViSlider.setPaintTicks(true);
         ViSlider.setPaintLabels(true);
-        ViSlider.setLabelTable(lengthSlider.createStandardLabels(10)); //Display slider spacing increments
+        ViSlider.setLabelTable(ViSlider.createStandardLabels(10)); //Display slider spacing increments
         panel.add(ViSlider);
 
         ViValue = new JTextField(ViSlider.getValue()+"m/s"); //To display the Vi of bullet value
@@ -234,9 +258,9 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
         launchButton.addActionListener(this);
         panel.add(launchButton);
 
-        //Write the formula on the screen, convert formula label from HTML Code:
+        /*
         JLabel formulaLabel = new JLabel();
-        String formulaText = 
+        final String formulaText = 
         "<html>" + 
             "<style>" + 
                 " body {" + 
@@ -256,6 +280,7 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
         formulaLabel.setSize(400, 200);
         formulaLabel.setLocation(10, 340);
         panel.add(formulaLabel);
+        */
 
         //JLabel to show the final angle result based on the equation:
         angleResultLabel.setHorizontalAlignment(JLabel.LEFT);

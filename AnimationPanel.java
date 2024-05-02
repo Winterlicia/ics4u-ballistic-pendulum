@@ -2,7 +2,11 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 class AnimationPanel extends JPanel {
@@ -10,6 +14,7 @@ class AnimationPanel extends JPanel {
     //General Properties:
     final double GRAVITY = 9.81; //Acceleration due to g
     int RESETTING_FACTOR = 0; //Used to reset the dotted line at the end of a launch
+    BufferedImage imgEquation;
 
     //Pendulum:
     int pendulumMeter = 5; //Default pendulum rope measurement = 5m. Let every 1m = 10pixels
@@ -35,6 +40,14 @@ class AnimationPanel extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D) g;
+
+        g2d.setStroke(new BasicStroke(7.0f));
+        g2d.drawLine(350, 0, 350, 540); //Line that separates the inputs and the actual pendulum
+
+        //Write the formula on the screen by uploading a .png image:
+        g.drawImage(imgEquation, 10, 420, null);
+
         //Break out of void method if length exceeds integer value
         if (pendulumMeter > 100000) {
             return;
@@ -52,7 +65,6 @@ class AnimationPanel extends JPanel {
         pendulumBobX = 10*pendulumMeter * Math.sin(currentTheta) + originX;
         pendulumBobY = 10*pendulumMeter * Math.cos(currentTheta) + originY;
 
-        Graphics2D g2d = (Graphics2D) g;
         g2d.setStroke(new BasicStroke(3.0f));
         g2d.drawLine(originX + bobDimension/2, originY, (int)(pendulumBobX + bobDimension/2), (int) pendulumBobY); //Account for bob length/width
         
@@ -90,5 +102,11 @@ class AnimationPanel extends JPanel {
     //Constructor 
     AnimationPanel() {
         super();
+        try {
+            imgEquation = ImageIO.read(new File("Equation.png"));
+        } catch (IOException e) {
+            System.out.println("Unable to read/load image");
+            e.printStackTrace();
+        }
     } 
 }
