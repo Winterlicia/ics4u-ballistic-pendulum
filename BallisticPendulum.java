@@ -26,7 +26,6 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
 
     JMenuBar menuBar = new JMenuBar();
     JMenu helpMenu = new JMenu("Help");
-    JMenuItem aboutMenu = new JMenuItem("About");
     
     //Sliders for length because we want it to be int, and initial velocity
     JSlider lengthSlider; 
@@ -109,12 +108,6 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
             }
             panel.repaint();
 
-        } else if (evt.getSource() == aboutMenu) {
-            frame.setContentPane(about_panel);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.pack();
-            frame.setResizable(false);
-            frame.setVisible(true);
         } else if (evt.getSource() == massBulletInput) {
             //Catch NumberFormatException
             try {
@@ -258,30 +251,6 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
         launchButton.addActionListener(this);
         panel.add(launchButton);
 
-        /*
-        JLabel formulaLabel = new JLabel();
-        final String formulaText = 
-        "<html>" + 
-            "<style>" + 
-                " body {" + 
-                    "font-size: 14px;" + 
-                "}" + 
-            "</style>" + 
-            "  " + 
-            "<body>" + 
-                "  <i>θ</i> = <i>cos</i><sup>-1</sup> [ 1 - " + 
-                "<sup> (m<sub>B</sub>v<sub>iB</sub>)<sup>2</sup>" + 
-                "</sup> &frasl;" + 
-                "<sub> (m<sub>B</sub>+m<sub>P</sub>)<sup>2</sup> 2gL</sub> ]" + 
-            "</body>" + 
-        "</html>";
-        formulaLabel.setText(formulaText); //Display angle from rad to deg
-        formulaLabel.setHorizontalAlignment(JLabel.LEFT);
-        formulaLabel.setSize(400, 200);
-        formulaLabel.setLocation(10, 340);
-        panel.add(formulaLabel);
-        */
-
         //JLabel to show the final angle result based on the equation:
         angleResultLabel.setHorizontalAlignment(JLabel.LEFT);
         angleResultLabel.setSize(100, 50);
@@ -291,14 +260,12 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
 
         //Add menu items/panels 
         menuBar.add(helpMenu);
-        menuBar.add(aboutMenu);
         frame.setJMenuBar(menuBar);
 
         //Start the timer:
         timer.start();
 
         //Add listeners for required properties:
-        aboutMenu.addActionListener(this);
 
         //Add default settings
         frame.setContentPane(panel);
