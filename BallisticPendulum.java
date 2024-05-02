@@ -2,7 +2,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JSlider;
 import javax.swing.JMenu;
 import javax.swing.JTextField;
@@ -43,6 +42,7 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
 
     //Labels:
     JLabel angleResultLabel = new JLabel();
+    JLabel errorMessageLabel = new JLabel();
 
     //Since there are two parts to the animation, we need booleans to keep track of what is going on
     boolean bulletLaunchFinished = false;
@@ -56,6 +56,40 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
 
             //Only launch if button is pressed:
             if (startLaunch == true) {
+                //Update masses:
+                //Catch NumberFormatException in bullet mass input
+                try {
+                    panel.bulletMass = Double.parseDouble(massBulletInput.getText());
+                    System.out.println(panel.bulletMass);
+                } catch (NumberFormatException e) {
+                    massBulletInput.setText("Please input a double");
+                    e.printStackTrace();
+                }
+
+                //Catch NumberFormatException in pendulum mass input
+                try {
+                    panel.pendulumMass = Double.parseDouble(massBobInput.getText());
+                } catch (NumberFormatException e) {
+                    massBobInput.setText("Please input a double");
+                    e.printStackTrace();
+                }
+
+                //Handle angle exception when arccos(theta) cannot be calculated.
+                if (Double.isNaN(panel.goalTheta)) {
+                    errorMessageLabel.setFont(new Font("Arial", Font.BOLD, 30));
+                    errorMessageLabel.setText("Bullet mass or initial velocity too large");
+                    forceReset();
+                    startLaunch = false;
+                }
+
+                //Handle exception where bullet can't move if intiial velocity is zero:
+                if (panel.bulletVi == 0) {
+                    errorMessageLabel.setFont(new Font("Arial", Font.BOLD, 18));
+                    errorMessageLabel.setText("The system cannot move if the bullet has zero initial velocity");
+                    forceReset();
+                    startLaunch = false;
+                }
+
                 //Animating bullet launch:
                 if (panel.bulletX < (panel.pendulumBobX - panel.bobDimension/4) && !bulletLaunchFinished) {
                     panel.bulletX += (0.48*panel.bulletVi); //Bullet moves faster if vi is increased.
@@ -94,37 +128,12 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
                     angleResultLabel.setFont(new Font("Arial", Font.PLAIN, 18));
                     angleResultLabel.setText("    = "+Math.round(Math.toDegrees(panel.goalTheta))+"°");
 
-                    //Force the user to reset the button at the end of each simulation if they want to go again
-                    launchButton.setFont(new Font("Arial", Font.BOLD, 11));
-                    launchButton.setText("Please reset to start again");
-                    launchButton.setFont((Font) UIManager.getLookAndFeelDefaults().get("defaultFont"));
-                    //Prevent user from touching the JComponents until they reset the simulation:
-                    lengthSlider.setEnabled(false);
-                    ViSlider.setEnabled(false);
-                    massBulletInput.setEditable(false);
-                    massBobInput.setEditable(false);
-                    launchButton.setEnabled(false);
+                    forceReset();
                 }
             }
             panel.repaint();
 
-        } else if (evt.getSource() == massBulletInput) {
-            //Catch NumberFormatException
-            try {
-                panel.bulletMass = Double.parseDouble(massBulletInput.getText());
-            } catch (NumberFormatException e) {
-                massBulletInput.setText("Please input a double");
-                e.printStackTrace();
-            }
-        } else if (evt.getSource() == massBobInput) {
-            //Catch NumberFormatException
-            try {
-                panel.pendulumMass = Double.parseDouble(massBobInput.getText());
-            } catch (NumberFormatException e) {
-                massBobInput.setText("Please input a double");
-                e.printStackTrace();
-            }
-        }else if (evt.getSource() == launchButton) {
+        } else if (evt.getSource() == launchButton) {
             launchButton.setText("Launching...");
             startLaunch = true;
 
@@ -158,10 +167,11 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
 
         lengthSlider.setValue(5);
         ViSlider.setValue(0);
-        massBulletInput.setText("Enter a double value for bullet mass. Default = 0.1kg");
-        massBobInput.setText("Enter a double value for bob mass. Default = 1.0kg");
+        massBulletInput.setText("0.1");
+        massBobInput.setText("1.0");
         angleResultLabel.setText("");
         launchButton.setText("Launch");
+        errorMessageLabel.setText("");
 
         startLaunch = false;
         bulletLaunchFinished = false;
@@ -177,6 +187,19 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
         panel.currentTheta = 0;
         panel.goalTheta = 0;
         panel.RESETTING_FACTOR = 0;
+    }
+
+    private void forceReset() {
+        //Force the user to reset the button at the end of each simulation if they want to go again
+        launchButton.setFont(new Font("Arial", Font.BOLD, 11));
+        launchButton.setText("Please reset to start again");
+        launchButton.setFont((Font) UIManager.getLookAndFeelDefaults().get("defaultFont"));
+        //Prevent user from touching the JComponents until they reset the simulation:
+        lengthSlider.setEnabled(false);
+        ViSlider.setEnabled(false);
+        massBulletInput.setEditable(false);
+        massBobInput.setEditable(false);
+        launchButton.setEnabled(false);
     }
 
     // Constructor
@@ -208,13 +231,13 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
 
         JLabel viSliderLabel = new JLabel("Initial Velocity Slider (m/s)");
         viSliderLabel.setSize(200, 40);
-        viSliderLabel.setLocation(10, 125);
+        viSliderLabel.setLocation(10, 115);
         panel.add(viSliderLabel);
 
         ViSlider = new JSlider(0, 50, 0); //Create a new slider for initial velocity
         ViSlider.setValue(0); //Set default value of vi at 0m/s
         ViSlider.setSize(250, 50);
-        ViSlider.setLocation(10, 175);
+        ViSlider.setLocation(10, 145);
         ViSlider.addChangeListener(this);
         ViSlider.setMinorTickSpacing(10); //Set slider spacing 
         ViSlider.setPaintTicks(true);
@@ -224,17 +247,22 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
 
         ViValue = new JTextField(ViSlider.getValue()+"m/s"); //To display the Vi of bullet value
         ViValue.setSize(50, 50);
-        ViValue.setLocation(260, 175);
+        ViValue.setLocation(260, 145);
         panel.add(ViValue);
 
-        //TextField for bullet mass input
-        massBulletInput = new JTextField("Enter a double value for bullet mass. Default = 0.1kg");
+        //Label and TextField for bullet mass input
+        JLabel inputDescriptor = new JLabel("Bullet & Pendulum Mass Input (kg)");
+        inputDescriptor.setSize(220, 40);
+        inputDescriptor.setLocation(10, 195);
+        panel.add(inputDescriptor);
+
+        massBulletInput = new JTextField("0.1");
         massBulletInput.setSize(300, 30);
         massBulletInput.setLocation(10, 230);
         panel.add(massBulletInput);
 
         //TextField for pendulum bob mass input
-        massBobInput = new JTextField("Enter a double value for bob mass. Default = 1.0kg");
+        massBobInput = new JTextField("1.0");
         massBobInput.setSize(300, 30);
         massBobInput.setLocation(10, 265);
         panel.add(massBobInput);
@@ -257,6 +285,11 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
         angleResultLabel.setLocation(10, 460);
         panel.add(angleResultLabel);
 
+        //Error message label
+        errorMessageLabel.setHorizontalAlignment(JLabel.CENTER);
+        errorMessageLabel.setSize(930-380, 50);
+        errorMessageLabel.setLocation(380, 400);
+        panel.add(errorMessageLabel);
 
         //Add menu items/panels 
         menuBar.add(helpMenu);

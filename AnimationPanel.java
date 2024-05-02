@@ -80,7 +80,6 @@ class AnimationPanel extends JPanel {
 
     private double calculateAngle() {
         return Math.acos(1 - Math.pow(this.bulletMass*this.bulletVi, 2) / (Math.pow(this.bulletMass+this.pendulumMass, 2)*2*GRAVITY*this.pendulumMeter)); 
-        //Returns angle in radians
     }
 
     private void finalPosition(Graphics2D g2d) {
