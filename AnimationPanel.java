@@ -62,8 +62,8 @@ class AnimationPanel extends JPanel {
         //Calculate change in bob position, using Bx = Lsina, By = Lcosa
         this.goalTheta = calculateAngle();
         
-        pendulumBobX = 10*pendulumMeter * Math.sin(currentTheta) + originX;
-        pendulumBobY = 10*pendulumMeter * Math.cos(currentTheta) + originY;
+        this.pendulumBobX = 10*pendulumMeter * Math.sin(currentTheta) + originX;
+        this.pendulumBobY = 10*pendulumMeter * Math.cos(currentTheta) + originY;
 
         g2d.setStroke(new BasicStroke(3.0f));
         g2d.drawLine(originX + bobDimension/2, originY, (int)(pendulumBobX + bobDimension/2), (int) pendulumBobY); //Account for bob length/width

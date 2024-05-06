@@ -90,6 +90,14 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
                     startLaunch = false;
                 }
 
+                //Handle exception where pendulum length/mass is so large, the angle is effectively zero (negligible):
+                if (panel.goalTheta == 0.0) {
+                    errorMessageLabel.setFont(new Font("Arial", Font.BOLD, 18));
+                    errorMessageLabel.setText("Pendulum length or bob mass is too large, angle can't change");
+                    forceReset();
+                    startLaunch = false;
+                }
+
                 //Animating bullet launch:
                 if (panel.bulletX < (panel.pendulumBobX - panel.bobDimension/4) && !bulletLaunchFinished) {
                     panel.bulletX += (0.48*panel.bulletVi); //Bullet moves faster if vi is increased.
