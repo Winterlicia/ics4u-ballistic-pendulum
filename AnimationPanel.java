@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -101,11 +102,25 @@ class AnimationPanel extends JPanel {
     //Constructor 
     AnimationPanel() {
         super();
-        try {
-            imgEquation = ImageIO.read(new File("Equation.png"));
-        } catch (IOException e) {
-            System.out.println("Unable to read/load image");
-            e.printStackTrace();
+        //Try to read the image from both the jar file and local drive
+        InputStream equationClass = this.getClass().getResourceAsStream("Equation.png");
+        
+        if (equationClass != null) {
+            try {
+                imgEquation = ImageIO.read(equationClass);
+            } catch (IOException e) {
+                System.out.println("Unable to read/load image from jar");
+                e.printStackTrace();
+            }
+        } else { //If it can't be found on the jar, search it locally
+            try {
+                imgEquation = ImageIO.read(new File("Equation.png"));
+            } catch (IOException e) {
+                System.out.println("Unable to read/load image");
+                e.printStackTrace();
+            }
         }
+
+        
     } 
 }

@@ -82,18 +82,18 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
                     startLaunch = false;
                 }
 
-                //Handle exception where bullet can't move if intiial velocity is zero:
-                if (panel.bulletVi == 0) {
-                    errorMessageLabel.setFont(new Font("Arial", Font.BOLD, 18));
-                    errorMessageLabel.setText("The system cannot move if the bullet has zero initial velocity");
-                    forceReset();
-                    startLaunch = false;
-                }
-
                 //Handle exception where pendulum length/mass is so large, the angle is effectively zero (negligible):
                 if (panel.goalTheta == 0.0) {
                     errorMessageLabel.setFont(new Font("Arial", Font.BOLD, 18));
                     errorMessageLabel.setText("Pendulum length or bob mass is too large, angle can't change");
+                    forceReset();
+                    startLaunch = false;
+                }
+
+                 //Handle exception where bullet can't move if initial velocity is zero:
+                 if (panel.bulletVi == 0) {
+                    errorMessageLabel.setFont(new Font("Arial", Font.BOLD, 18));
+                    errorMessageLabel.setText("The system cannot move if the bullet has zero initial velocity");
                     forceReset();
                     startLaunch = false;
                 }
