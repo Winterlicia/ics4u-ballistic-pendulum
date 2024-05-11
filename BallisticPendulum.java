@@ -2,14 +2,16 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.JMenu;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -18,13 +20,18 @@ import java.awt.event.ActionListener;
 public class BallisticPendulum implements ActionListener, ChangeListener {
     // Properties
     JFrame frame = new JFrame("Ballistic Pendulum Simulation");
-    //JPanel panel = new JPanel();
-    AnimationPanel panel = new AnimationPanel();
-    AboutPanel about_panel = new AboutPanel();
+    JPanel panel = new JPanel();
+    AnimationPanel animationPanel = new AnimationPanel();
+    HelpPanel helpPanel = new HelpPanel();
+    AboutPanel aboutPanel = new AboutPanel();
     Timer timer = new Timer(1000/48, this); //The timer goes off at 48fps
 
     JMenuBar menuBar = new JMenuBar();
-    JMenu helpMenu = new JMenu("Help");
+    JMenuItem simulationMenuItem = new JMenuItem("Simulation");
+    JMenuItem helpMenuItem = new JMenuItem("Help");
+    JMenuItem aboutMenuItem = new JMenuItem("About");
+
+    CardLayout cardLayout = new CardLayout();
     
     //Sliders for length because we want it to be int, and initial velocity
     JSlider lengthSlider; 
@@ -59,8 +66,8 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
                 //Update masses:
                 //Catch NumberFormatException in bullet mass input
                 try {
-                    panel.bulletMass = Double.parseDouble(massBulletInput.getText());
-                    System.out.println(panel.bulletMass);
+                    animationPanel.bulletMass = Double.parseDouble(massBulletInput.getText());
+                    System.out.println(animationPanel.bulletMass);
                 } catch (NumberFormatException e) {
                     massBulletInput.setText("Please input a double");
                     e.printStackTrace();
@@ -68,14 +75,14 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
 
                 //Catch NumberFormatException in pendulum mass input
                 try {
-                    panel.pendulumMass = Double.parseDouble(massBobInput.getText());
+                    animationPanel.pendulumMass = Double.parseDouble(massBobInput.getText());
                 } catch (NumberFormatException e) {
                     massBobInput.setText("Please input a double");
                     e.printStackTrace();
                 }
 
                 //Handle angle exception when arccos(theta) cannot be calculated.
-                if (Double.isNaN(panel.goalTheta)) {
+                if (Double.isNaN(animationPanel.goalTheta)) {
                     errorMessageLabel.setFont(new Font("Arial", Font.BOLD, 30));
                     errorMessageLabel.setText("Bullet mass or initial velocity too large");
                     forceReset();
@@ -83,7 +90,7 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
                 }
 
                 //Handle exception where pendulum length/mass is so large, the angle is effectively zero (negligible):
-                if (panel.goalTheta == 0.0) {
+                if (animationPanel.goalTheta == 0.0) {
                     errorMessageLabel.setFont(new Font("Arial", Font.BOLD, 18));
                     errorMessageLabel.setText("Pendulum length or bob mass is too large, angle can't change");
                     forceReset();
@@ -91,7 +98,7 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
                 }
 
                  //Handle exception where bullet can't move if initial velocity is zero:
-                 if (panel.bulletVi == 0) {
+                 if (animationPanel.bulletVi == 0) {
                     errorMessageLabel.setFont(new Font("Arial", Font.BOLD, 18));
                     errorMessageLabel.setText("The system cannot move if the bullet has zero initial velocity");
                     forceReset();
@@ -99,47 +106,47 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
                 }
 
                 //Animating bullet launch:
-                if (panel.bulletX < (panel.pendulumBobX - panel.bobDimension/4) && !bulletLaunchFinished) {
-                    panel.bulletX += (0.48*panel.bulletVi); //Bullet moves faster if vi is increased.
-                    System.out.println(0.48*panel.bulletVi);
+                if (animationPanel.bulletX < (animationPanel.pendulumBobX - animationPanel.bobDimension/4) && !bulletLaunchFinished) {
+                    animationPanel.bulletX += (0.48*animationPanel.bulletVi); //Bullet moves faster if vi is increased.
+                    System.out.println(0.48*animationPanel.bulletVi);
 
-                    if ((panel.pendulumBobX - panel.bobDimension/4) < panel.bulletX) { //If current bulletX overshoots the goal, set them equal and break out of this loop
-                        panel.bulletX = panel.pendulumBobX - panel.bobDimension/4;
+                    if ((animationPanel.pendulumBobX - animationPanel.bobDimension/4) < animationPanel.bulletX) { //If current bulletX overshoots the goal, set them equal and break out of this loop
+                        animationPanel.bulletX = animationPanel.pendulumBobX - animationPanel.bobDimension/4;
                         bulletLaunchFinished = true;
                     } 
                 }
 
                 //Go to Part 2 Swinging animation once bullet hits the pendulum
                 //System.out.println(panel.bulletX+" = "+(panel.pendulumBobX - panel.bobDimension/4));
-                if (panel.bulletX == (panel.pendulumBobX - panel.bobDimension/4)) {
+                if (animationPanel.bulletX == (animationPanel.pendulumBobX - animationPanel.bobDimension/4)) {
                     System.out.println("Bullet launch successful");
                     bulletLaunchFinished = true;
                 }
 
                 //Animating pendulum swinging with the bullet, using angle calculations
-                if (panel.currentTheta < panel.goalTheta && bulletLaunchFinished && !pendulumLaunchFinished) {
-                    panel.currentTheta += (0.0005*panel.bulletVi); //Angle adjusts faster if vi is faster
+                if (animationPanel.currentTheta < animationPanel.goalTheta && bulletLaunchFinished && !pendulumLaunchFinished) {
+                    animationPanel.currentTheta += (0.0005*animationPanel.bulletVi); //Angle adjusts faster if vi is faster
                     
-                    if (panel.goalTheta < panel.currentTheta) { //If current theta overshoots the goal, set them equal and break out of this loop
-                        panel.currentTheta = panel.goalTheta;
+                    if (animationPanel.goalTheta < animationPanel.currentTheta) { //If current theta overshoots the goal, set them equal and break out of this loop
+                        animationPanel.currentTheta = animationPanel.goalTheta;
                         pendulumLaunchFinished = true;
                     } 
                 }
 
-                System.out.println(panel.currentTheta+ " = " + panel.goalTheta);
-                if (panel.currentTheta == panel.goalTheta) {
+                System.out.println(animationPanel.currentTheta+ " = " + animationPanel.goalTheta);
+                if (animationPanel.currentTheta == animationPanel.goalTheta) {
                     launchButton.setText("Launch successful!");
-                    panel.RESETTING_FACTOR = 1;
+                    animationPanel.RESETTING_FACTOR = 1;
                     startLaunch = false;
                     bulletLaunchFinished = false;
                     pendulumLaunchFinished = true;
                     angleResultLabel.setFont(new Font("Arial", Font.PLAIN, 18));
-                    angleResultLabel.setText("    = "+Math.round(Math.toDegrees(panel.goalTheta))+"°");
+                    angleResultLabel.setText("    = "+Math.round(Math.toDegrees(animationPanel.goalTheta))+"°");
 
                     forceReset();
                 }
             }
-            panel.repaint();
+            animationPanel.repaint();
 
         } else if (evt.getSource() == launchButton) {
             launchButton.setText("Launching...");
@@ -147,6 +154,12 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
 
         } else if (evt.getSource() == resetButton) {
             resetSimulation();
+        } else if (evt.getSource() == simulationMenuItem) {
+            cardLayout.show(panel, "Animation");
+        } else if (evt.getSource() == helpMenuItem) {
+            cardLayout.show(panel, "Help");
+        } else if (evt.getSource() == aboutMenuItem) {
+            cardLayout.show(panel, "About");
         }
     }
 
@@ -154,12 +167,12 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
     public void stateChanged(ChangeEvent evt) {
         if (evt.getSource() == lengthSlider) {
             lengthValue.setText(lengthSlider.getValue()+"m");
-            panel.pendulumMeter = lengthSlider.getValue();
+            animationPanel.pendulumMeter = lengthSlider.getValue();
         }
 
         if (evt.getSource() == ViSlider) {
             ViValue.setText(ViSlider.getValue()+"m/s");
-            panel.bulletVi = ViSlider.getValue();
+            animationPanel.bulletVi = ViSlider.getValue();
         }
     }
 
@@ -185,16 +198,16 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
         bulletLaunchFinished = false;
         pendulumLaunchFinished = false;
 
-        panel.pendulumMeter = 5;
-        panel.pendulumBobX = 600;
-        panel.pendulumBobY = 375;
-        panel.pendulumMass = 1.0;
-        panel.bulletX = 500.0;
-        panel.bulletMass = 0.1;
-        panel.bulletVi = 0.0;
-        panel.currentTheta = 0;
-        panel.goalTheta = 0;
-        panel.RESETTING_FACTOR = 0;
+        animationPanel.pendulumMeter = 5;
+        animationPanel.pendulumBobX = 600;
+        animationPanel.pendulumBobY = 375;
+        animationPanel.pendulumMass = 1.0;
+        animationPanel.bulletX = 500.0;
+        animationPanel.bulletMass = 0.1;
+        animationPanel.bulletVi = 0.0;
+        animationPanel.currentTheta = 0;
+        animationPanel.goalTheta = 0;
+        animationPanel.RESETTING_FACTOR = 0;
     }
 
     private void forceReset() {
@@ -213,13 +226,29 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
     // Constructor
     public BallisticPendulum() {
         panel.setPreferredSize(new Dimension(960, 540));
-        panel.setLayout(null);
+        panel.setLayout(cardLayout);
+        panel.add(animationPanel, "Animation");
+        panel.add(helpPanel, "Help");
+        panel.add(aboutPanel, "About");
+
+        cardLayout.show(panel, "Animation");
+
+        //Add menu items/panels 
+        menuBar.add(simulationMenuItem);
+        menuBar.add(helpMenuItem);
+        menuBar.add(aboutMenuItem);
+
+        simulationMenuItem.addActionListener(this);
+        helpMenuItem.addActionListener(this);
+        aboutMenuItem.addActionListener(this);
+
+        frame.setJMenuBar(menuBar);
 
         //Add JComponents 
         JLabel lengthSliderLabel = new JLabel("Length Slider (m)");
         lengthSliderLabel.setSize(200, 40);
         lengthSliderLabel.setLocation(10, 10);
-        panel.add(lengthSliderLabel);
+        animationPanel.add(lengthSliderLabel);
 
         lengthSlider = new JSlider(5, 45, 5); //Slider from 0-100m, with delta value of 5
         lengthSlider.setValue(5); //Set default value of 5m
@@ -230,17 +259,17 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
         lengthSlider.setPaintTicks(true);
         lengthSlider.setPaintLabels(true);
         lengthSlider.setLabelTable(lengthSlider.createStandardLabels(5)); //Display slider spacing increments
-        panel.add(lengthSlider);
+        animationPanel.add(lengthSlider);
 
         lengthValue = new JTextField(lengthSlider.getValue()+"m"); //To display the length of the pendulum
         lengthValue.setSize(50, 50);
         lengthValue.setLocation(260, 50);
-        panel.add(lengthValue);
+        animationPanel.add(lengthValue);
 
         JLabel viSliderLabel = new JLabel("Initial Velocity Slider (m/s)");
         viSliderLabel.setSize(200, 40);
         viSliderLabel.setLocation(10, 115);
-        panel.add(viSliderLabel);
+        animationPanel.add(viSliderLabel);
 
         ViSlider = new JSlider(0, 50, 0); //Create a new slider for initial velocity
         ViSlider.setValue(0); //Set default value of vi at 0m/s
@@ -251,57 +280,53 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
         ViSlider.setPaintTicks(true);
         ViSlider.setPaintLabels(true);
         ViSlider.setLabelTable(ViSlider.createStandardLabels(10)); //Display slider spacing increments
-        panel.add(ViSlider);
+        animationPanel.add(ViSlider);
 
         ViValue = new JTextField(ViSlider.getValue()+"m/s"); //To display the Vi of bullet value
         ViValue.setSize(50, 50);
         ViValue.setLocation(260, 145);
-        panel.add(ViValue);
+        animationPanel.add(ViValue);
 
         //Label and TextField for bullet mass input
         JLabel inputDescriptor = new JLabel("Bullet & Pendulum Mass Input (kg)");
         inputDescriptor.setSize(220, 40);
         inputDescriptor.setLocation(10, 195);
-        panel.add(inputDescriptor);
+        animationPanel.add(inputDescriptor);
 
         massBulletInput = new JTextField("0.1");
         massBulletInput.setSize(300, 30);
         massBulletInput.setLocation(10, 230);
-        panel.add(massBulletInput);
+        animationPanel.add(massBulletInput);
 
         //TextField for pendulum bob mass input
         massBobInput = new JTextField("1.0");
         massBobInput.setSize(300, 30);
         massBobInput.setLocation(10, 265);
-        panel.add(massBobInput);
+        animationPanel.add(massBobInput);
 
         //Reset button
         resetButton.setSize(200, 50);
         resetButton.setLocation(50, 300);
         resetButton.addActionListener(this);
-        panel.add(resetButton);
+        animationPanel.add(resetButton);
 
         //Launch button
         launchButton.setSize(200, 50);
         launchButton.setLocation(50, 355);
         launchButton.addActionListener(this);
-        panel.add(launchButton);
+        animationPanel.add(launchButton);
 
         //JLabel to show the final angle result based on the equation:
         angleResultLabel.setHorizontalAlignment(JLabel.LEFT);
         angleResultLabel.setSize(100, 50);
         angleResultLabel.setLocation(10, 460);
-        panel.add(angleResultLabel);
+        animationPanel.add(angleResultLabel);
 
         //Error message label
         errorMessageLabel.setHorizontalAlignment(JLabel.CENTER);
         errorMessageLabel.setSize(930-380, 50);
         errorMessageLabel.setLocation(380, 400);
-        panel.add(errorMessageLabel);
-
-        //Add menu items/panels 
-        menuBar.add(helpMenu);
-        frame.setJMenuBar(menuBar);
+        animationPanel.add(errorMessageLabel);
 
         //Start the timer:
         timer.start();

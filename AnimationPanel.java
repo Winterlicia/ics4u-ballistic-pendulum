@@ -102,6 +102,9 @@ class AnimationPanel extends JPanel {
     //Constructor 
     AnimationPanel() {
         super();
+
+        setLayout(null);
+        
         //Try to read the image from both the jar file and local drive
         InputStream equationClass = this.getClass().getResourceAsStream("Equation.png");
         
