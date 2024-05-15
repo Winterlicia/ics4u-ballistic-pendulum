@@ -17,46 +17,140 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Simulates the ballistic pendulum experiment
+ */
 public class BallisticPendulum implements ActionListener, ChangeListener {
     // Properties
+    /**
+     * The main JFrame that will contain all the components
+     */
     JFrame frame = new JFrame("Ballistic Pendulum Simulation");
-    JPanel panel = new JPanel();
-    AnimationPanel animationPanel = new AnimationPanel();
-    HelpPanel helpPanel = new HelpPanel();
-    AboutPanel aboutPanel = new AboutPanel();
-    Timer timer = new Timer(1000/48, this); //The timer goes off at 48fps
 
+    /**
+     * The main JPanel that will contain all the components
+     */
+    JPanel panel = new JPanel();
+
+    /**
+     * The AnimationPanel that will contain the simulation
+     */
+    AnimationPanel animationPanel = new AnimationPanel();
+
+    /**
+     * The HelpPanel that will contain the help information
+     */
+    HelpPanel helpPanel = new HelpPanel();
+
+    /**
+     * The AboutPanel that will contain the about information
+     */
+    AboutPanel aboutPanel = new AboutPanel();
+
+    /**
+     * The timer that will control the animation, going off at 48fps
+     */
+    Timer timer = new Timer(1000/48, this);
+
+    /**
+     * The menu bar that will contain the menu items
+     */
     JMenuBar menuBar = new JMenuBar();
+
+    /**
+     * The menu item that will switch to the simulation panel
+     */
     JMenuItem simulationMenuItem = new JMenuItem("Simulation");
+
+    /**
+     * The menu item that will switch to the help panel
+     */
     JMenuItem helpMenuItem = new JMenuItem("Help");
+
+    /**
+     * The menu item that will switch to the about panel
+     */
     JMenuItem aboutMenuItem = new JMenuItem("About");
 
+    /**
+     * The card layout that will switch between the panels
+     */
     CardLayout cardLayout = new CardLayout();
     
     //Sliders for length because we want it to be int, and initial velocity
+    /**
+     * The slider that will control the length of the pendulum
+     */
     JSlider lengthSlider; 
-    JTextField lengthValue; //To display the slider value
+
+    /**
+     * The text field that will display the value of the length slider
+     */
+    JTextField lengthValue;
+
+    /**
+     * The slider that will control the initial velocity of the bullet
+     */
     JSlider ViSlider;
+
+    /**
+     * The text field that will display the value of the initial velocity slider
+     */
     JTextField ViValue; 
     
     //JTextFields for mass because we allow user to input doubles:
+    /**
+     * The text field that will allow the user to input the mass of the bullet
+     */
     JTextField massBulletInput; 
+
+    /**
+     * The text field that will allow the user to input the mass of the pendulum bob
+     */
     JTextField massBobInput; 
 
     //Buttons:
-    JButton resetButton = new JButton("Reset"); //Button to reset the pendulum setup
-    JButton launchButton = new JButton("Launch"); //Button to start the bullet launch
+    /**
+     * The button that will reset the pendulum setup
+     */
+    JButton resetButton = new JButton("Reset");
+
+    /**
+     * The button that will launch the bullet
+     */
+    JButton launchButton = new JButton("Launch");
 
     //Labels:
+    /**
+     * The label that will display the angle result
+     */
     JLabel angleResultLabel = new JLabel();
+
+    /**
+     * The label that will display error messages
+     */
     JLabel errorMessageLabel = new JLabel();
 
     //Since there are two parts to the animation, we need booleans to keep track of what is going on
+    /**
+     * A boolean that keeps track of whether the bullet launch is finished
+     */
     boolean bulletLaunchFinished = false;
+
+    /**
+     * A boolean that keeps track of whether the pendulum launch is started
+     */
     boolean startLaunch = false;
+
+    /**
+     * A boolean that keeps track of whether the pendulum launch is finished
+     */
     static boolean pendulumLaunchFinished = false;
 
     // Event Listeners
+    /**
+     * Handles the events of the buttons and sliders
+     */
     @Override
     public void actionPerformed(ActionEvent evt) {
         if (evt.getSource() == timer) {
@@ -163,6 +257,9 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
         }
     }
 
+    /**
+     * Handles the events of the sliders
+     */
     @Override
     public void stateChanged(ChangeEvent evt) {
         if (evt.getSource() == lengthSlider) {
@@ -177,7 +274,9 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
     }
 
     // Methods
-    //Function to reset the entire simulation:
+    /**
+     * Resets the simulation
+     */
     private void resetSimulation() {
         //Reset JComponents and AnimationPanel Properties:
         lengthSlider.setEnabled(true);
@@ -210,6 +309,9 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
         animationPanel.RESETTING_FACTOR = 0;
     }
 
+    /**
+     * Forces the user to reset the simulation
+     */
     private void forceReset() {
         //Force the user to reset the button at the end of each simulation if they want to go again
         launchButton.setFont(new Font("Arial", Font.BOLD, 11));
@@ -224,6 +326,9 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
     }
 
     // Constructor
+    /**
+     * Creates a new BallisticPendulum object
+     */
     public BallisticPendulum() {
         panel.setPreferredSize(new Dimension(960, 540));
         panel.setLayout(cardLayout);
@@ -344,6 +449,10 @@ public class BallisticPendulum implements ActionListener, ChangeListener {
     
 
     // Main
+    /**
+     * Creates a new BallisticPendulum object
+     * @param args the command line arguments
+     */
     public static void main(String[] args) {
         new BallisticPendulum();
     }

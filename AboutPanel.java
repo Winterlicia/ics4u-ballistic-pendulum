@@ -2,13 +2,34 @@
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-class AboutPanel extends JPanel {
+/**
+ * Draws the about panel on the screen
+ */
+public class AboutPanel extends JPanel {
+    /**
+     * The label that displays the programmers of the program
+     */
     JLabel programmerLabel = new JLabel("Developed by Kaden Seto and Martin Sit");
+
+    /**
+     * The label that displays the version of the program
+     */
     JLabel versionLabel = new JLabel("Version 1.0");
+
+    /**
+     * The label that displays the course of the program
+     */
     JLabel courseLabel = new JLabel("St. Augustine CHS Computer Science - ICS4U1");
+
+    /**
+     * The label that displays the teacher of the program
+     */
     JLabel teacherLabel = new JLabel("Taught by Mr. Cadawas");
 
     // Constructor
+    /**
+     * Creates a new AboutPanel object
+     */
     AboutPanel() {
         super();
         // Set the layout to null

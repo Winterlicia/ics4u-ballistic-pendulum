@@ -7,9 +7,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-class HelpPanel extends JPanel {
+/**
+ * Draws the help panel on the screen
+ */
+public class HelpPanel extends JPanel {
+    /**
+     * The image of the tutorial that will be displayed on the screen
+     */
     BufferedImage imgHelp;
 
+    /**
+     * Draws the tutorial image
+     */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -17,6 +26,9 @@ class HelpPanel extends JPanel {
     }
 
     // Constructor
+    /**
+     * Creates a new HelpPanel object
+     */
     HelpPanel() {
         super();
 

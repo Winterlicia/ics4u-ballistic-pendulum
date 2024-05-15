@@ -10,34 +10,107 @@ import java.io.InputStream;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-class AnimationPanel extends JPanel {
-//Properties
+/**
+ * Draws the simulation of the ballistic pendulum on the screen
+ */
+public class AnimationPanel extends JPanel {
+    //Properties
     //General Properties:
-    final double GRAVITY = 9.81; //Acceleration due to g
-    int RESETTING_FACTOR = 0; //Used to reset the dotted line at the end of a launch
+    /**
+     * A constant value for the acceleration due to gravity, which is 9.81 m/s^2
+     */
+    final double GRAVITY = 9.81;
+
+    /** 
+     * A constant value for the resetting factor, which is 0
+     * Used to reset the dotted line at the end of a launch
+     */
+    int RESETTING_FACTOR = 0;
+
+    /** 
+     * The image of the equation that will be displayed on the screen
+     */
     BufferedImage imgEquation;
 
     //Pendulum:
-    int pendulumMeter = 5; //Default pendulum rope measurement = 5m. Let every 1m = 10pixels
+    /**
+     * The length of the pendulum rope in meters
+     * Default value is 5 meters
+     * Each meter is equivalent to 10 pixels
+     */
+    int pendulumMeter = 5;
     
     //Bob:
-    final int originX = 600, originY = 0; //x,y coordinates at the top of the pendulum rope
+    /**
+     * The x coordinate of the top of the pendulum rope
+     */
+    final int originX = 600;
+    
+    /**
+     * The y coordinate of the top of the pendulum rope
+     */
+    final int originY = 0;
+
+    /**
+     * The dimensions of the bob that will be displayed on the screen
+     */
     final int bobDimension = 32;
-    double pendulumBobX = 600, pendulumBobY = 375;
+
+    /**
+     * The x coordinate of the bob
+     */
+    double pendulumBobX = 600;
+
+    /**
+     * The y coordinate of the bob
+     */
+    double pendulumBobY = 375;
+
+    /**
+     * The mass of the pendulum bob in kilograms
+     * Default value is 1.0 kg
+     */
     double pendulumMass = 1.0;
 
     //Bullet:
+    /**
+     * The x coordinate of the bullet
+     */
     double bulletX = 500.0; 
+
+    /**
+     * The y coordinate of the bullet
+     */
     int bulletY = originY + bobDimension/2;
+
+    /**
+     * The mass of the bullet in kilograms
+     * Default value is 0.1 kg
+     */
     double bulletMass = 0.1;
-    double bulletVi = 0.0; //Default bullet speed = 0
+
+    /**
+     * The initial velocity of the bullet in m/s
+     * Default value is 0.0 m/s
+     */
+    double bulletVi = 0.0;
 
     //Angle:
+    /**
+     * The current angle of the pendulum in radians
+     */
     double currentTheta = 0;
+
+    /**
+     * The goal angle of the pendulum in radians
+     */
     double goalTheta = 0;
 
-//Methods    
-    //paintComponent shows the way the panel is drawn, with animations:
+    //Methods    
+    /**
+     * Draws the components of the panel, with animations
+     * @param g The graphics object used to draw the components
+     */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -79,10 +152,18 @@ class AnimationPanel extends JPanel {
         
     }
 
+    /**
+     * Calculates the angle of the pendulum using the ballistic pendulum equation
+     * @return The angle of the pendulum in radians
+     */
     private double calculateAngle() {
         return Math.acos(1 - Math.pow(this.bulletMass*this.bulletVi, 2) / (Math.pow(this.bulletMass+this.pendulumMass, 2)*2*GRAVITY*this.pendulumMeter)); 
     }
 
+    /**
+     * Draws the final position of the pendulum bob after the launch
+     * @param g2d
+     */
     private void finalPosition(Graphics2D g2d) {
         g2d.setColor(Color.RED);
         // Set dashed/dotted stroke
@@ -100,6 +181,9 @@ class AnimationPanel extends JPanel {
     }
 
     //Constructor 
+    /**
+     * Constructs a new AnimationPanel object
+     */
     AnimationPanel() {
         super();
 
