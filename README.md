@@ -4,6 +4,8 @@
   This project is a visual representation of how the ballistic pendulum experiment works to demonstrate inelastic collisions in Grade 12 Physics. 
 </div>
 
+<br>
+
 <div align="center">
   <img src="./HelpPanel.png">
 </div>
